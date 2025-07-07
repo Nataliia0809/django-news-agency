@@ -14,6 +14,20 @@ class Redactor(AbstractUser):
     is_active_redactor = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='redactor_groups',
+        blank=True,
+        help_text='The groups this redactor belongs to.',
+    )
+
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='redactor_permissions',
+        blank=True,
+        help_text='Specific permissions for this redactor.',
+    )
+
     class Meta:
         verbose_name = "Redactor"
         verbose_name_plural = "Redactors"
@@ -32,4 +46,3 @@ class Redactor(AbstractUser):
     @property
     def total_views(self):
         return sum(newspaper.views_count for newspaper in self.newspapers.all())
-
