@@ -40,4 +40,7 @@ urlpatterns = [
         views.RedactorDetailView.as_view(),
         name="redactor-detail",
     ),
+    # пошук
+    path("search/", views.search_view, name="search"),
+    path("search/autocomplete/", views.search_autocomplete, name="search-autocomplete"),
 ]
