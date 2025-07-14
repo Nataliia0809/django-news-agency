@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Головна - Новинна Агенція{% endblock %}
+
+{% block content %}
+<!-- Банер -->
+<div class="jumbotron bg-primary text-white text-center py-5 mb-5 rounded">
+    <div class="container">
+        <h1 class="display-4">
+            <i class="fas fa-newspaper"></i> Новинна Агенція
+        </h1>
+        <p class="lead">Ваше надійне джерело актуальних новин та інформації</p>
+        {% if not user.is_authenticated %}
+            <div class="mt-4">
+                <a href="{% url 'accounts:signup' %}" class="btn btn-light btn-lg me-3">
+                    <i class="fas fa-user-plus"></i> Приєднатися
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Увійти
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Привітання для користувача -->
+{% if user.is_authenticated %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <h4><i class="fas fa-user-circle"></i> Привіт, {{ user.first_name|default:user.username }}!</h4>
+                <p class="mb-0">Ласкаво просимо до новинної агенції. Тут ви можете переглядати та створювати новини.</p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!-- Основний контент -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="fas fa-fire"></i> Останні новини</h2>
+            <a href="{% url 'news:newspaper-list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-list"></i> Всі новини
+            </a>
+        </div>
+        <hr>
+
+        {% if newspapers %}
+            {% for newspaper in newspapers %}
+                <div class="card mb-4 shadow-sm">
+                    {% if newspaper.featured_image %}
+                        <img src="{{ newspaper.featured_image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ newspaper.topic.name }}</span>
+                            {% if newspaper.priority == 'urgent' %}
+                                <span class="badge bg-danger">Терміново</span>
+                            {% elif newspaper.priority == 'high' %}
+                                <span class="badge bg-warning">Важливо</span>
+                            {% endif %}
+                        </div>
+
+                        <h5 class="card-title">
+                            <a href="{{ newspaper.get_absolute_url }}" class="text-decoration-none">
+                                {{ newspaper.title }}
+                            </a>
+                        </h5>
+
+                        <p class="card-text">
+                            {{ newspaper.excerpt|default:newspaper.content|truncatewords:20 }}
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> {{ newspaper.published_date }}
+                                <i class="fas fa-eye ms-2"></i> {{ newspaper.views_count }}
+                            </small>
+                            <a href="{{ newspaper.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+                                Читати далі
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% if user.is_authenticated %}
+                <div class="text-center mt-4">
+                    <a href="{% url 'news:newspaper-create' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> Додати новину
+                    </a>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-newspaper fa-5x text-muted"></i>
+                </div>
+                <h4 class="text-muted">Поки що новин немає</h4>
+                <p class="text-muted">Станьте першим, хто опублікує новину!</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'news:newspaper-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Додати першу новину
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <h3><i class="fas fa-info-circle"></i> Статистика</h3>
+        <hr>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-chart-bar"></i> Загальна інформація
+                </h6>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h4 class="text-primary mb-0">{{ total_newspapers }}</h4>
+                            <small class="text-muted">Новин</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h4 class="text-success mb-0">{{ total_topics }}</h4>
+                            <small class="text-muted">Тем</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h4 class="text-info mb-0">{{ total_redactors }}</h4>
+                        <small class="text-muted">Редакторів</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-link"></i> Корисні посилання
+                </h6>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'news:topic-list' %}" class="list-group-item list-group-item-action border-0 px-0">
+                        <i class="fas fa-tags"></i> Всі теми
+                    </a>
+                    <a href="{% url 'news:redactor-list' %}" class="list-group-item list-group-item-action border-0 px-0">
+                        <i class="fas fa-users"></i> Наші редактори
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'news:newspaper-create' %}" class="list-group-item list-group-item-action border-0 px-0">
+                            <i class="fas fa-plus"></i> Додати новину
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-question-circle"></i> Допомога
+                </h6>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Маєте питання чи пропозиції? Зв'яжіться з адміністрацією сайту.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .jumbotron {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border-radius: 15px;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+        border-radius: 10px;
+    }
+
+    .btn-lg {
+        padding: 12px 30px;
+        border-radius: 25px;
+    }
+</style>
+{% endblock %}

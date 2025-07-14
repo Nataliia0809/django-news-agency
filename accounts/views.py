@@ -15,4 +15,4 @@ def signup(request):
             return redirect("news:index")
         else:
             form = RedactorCreationForm()
-            return render(request, "registration/signup.html", {"form": form})
+        return render(request, "registration/signup.html", {"form": form})

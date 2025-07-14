@@ -11,7 +11,7 @@ from django.views.generic import (
 from django.urls import reverse_lazy
 from django.contrib import messages
 from .models import Newspaper, Topic
-from .forms import NewspaperForm, TopicForm
+from .forms import NewspaperForm, TopicForm, RedactorForm
 from accounts.models import Redactor
 
 
@@ -82,7 +82,7 @@ class TopicListView(ListView):
 
 class TopicDetailView(DetailView):
     model = Topic
-    template_name = news / topic_detail.html
+    template_name = "news/topic_detail.html"
 
     def context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,6 +97,13 @@ class TopicCreateView(LoginRequiredMixin, CreateView):
 
 
 # редактори🔻
+class RedactorListView(ListView):
+    model = Redactor
+    template_name = "news/redactor_list.html"
+    context_object_name = "redactors"
+    paginate_by = 10
+
+
 class RedactorCreateView(LoginRequiredMixin, CreateView):
     model = Redactor
     form_class = RedactorForm
@@ -105,5 +112,5 @@ class RedactorCreateView(LoginRequiredMixin, CreateView):
 
 class RedactorDetailView(DetailView):
     model = Redactor
-    form_class = Redactorform
     template_name = "news/redactor_detail.html"
+    context_object_name = "redactor"

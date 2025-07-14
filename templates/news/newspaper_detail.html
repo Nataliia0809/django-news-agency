@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ newspaper.title }} - Новинна Агенція{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Навігація назад -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:index' %}"><i class="fas fa-home"></i> Головна</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:newspaper-list' %}">Новини</a>
+                </li>
+                <li class="breadcrumb-item active">{{ newspaper.title|truncatechars:50 }}</li>
+            </ol>
+        </nav>
+
+        <!-- Основна стаття -->
+        <article class="card shadow-sm">
+            <!-- Зображення -->
+            {% if newspaper.featured_image %}
+                <img src="{{ newspaper.featured_image.url }}" class="card-img-top" style="height: 400px; object-fit: cover;">
+            {% endif %}
+
+            <div class="card-body">
+                <!-- Мета-інформація -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-primary fs-6">{{ newspaper.topic.name }}</span>
+                        {% if newspaper.priority == 'urgent' %}
+                            <span class="badge bg-danger fs-6">Терміново</span>
+                        {% elif newspaper.priority == 'high' %}
+                            <span class="badge bg-warning text-dark fs-6">Важливо</span>
+                        {% elif newspaper.priority == 'medium' %}
+                            <span class="badge bg-info fs-6">Середньо</span>
+                        {% endif %}
+                        {% if newspaper.is_featured %}
+                            <span class="badge bg-success fs-6">Рекомендоване</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Кнопки дій для авторів -->
+                    {% if user.is_authenticated and user in newspaper.publishers.all %}
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'news:newspaper-update' newspaper.pk %}" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-edit"></i> Редагувати
+                            </a>
+                            <a href="{% url 'news:newspaper-delete' newspaper.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i> Видалити
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Заголовок -->
+                <h1 class="card-title display-6 mb-4">{{ newspaper.title }}</h1>
+
+                <!-- Інформація про публікацію -->
+                <div class="border-bottom pb-3 mb-4">
+                    <div class="row text-muted">
+                        <div class="col-md-6">
+                            <small>
+                                <i class="fas fa-calendar"></i>
+                                <strong>Опубліковано:</strong> {{ newspaper.published_date }}
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small>
+                                <i class="fas fa-eye"></i>
+                                <strong>Переглядів:</strong> {{ newspaper.views_count }}
+                            </small>
+                        </div>
+                    </div>
+
+                    {% if newspaper.publishers.all %}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-user-edit"></i>
+                                <strong>Автори:</strong>
+                                {% for publisher in newspaper.publishers.all %}
+                                    <a href="{% url 'news:redactor-detail' publisher.pk %}" class="text-decoration-none">
+                                        {{ publisher.full_name|default:publisher.username }}
+                                    </a>
+                                    {% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </small>
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            <strong>Створено:</strong> {{ newspaper.created }}
+                            {% if newspaper.created != newspaper.updated %}
+                                | <strong>Оновлено:</strong> {{ newspaper.updated }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Вміст статті -->
+                <div class="article-content">
+                    {{ newspaper.content|linebreaks }}
+                </div>
+
+                <!-- Теги -->
+                {% if newspaper.tags.all %}
+                    <div class="mt-4 pt-3 border-top">
+                        <h6><i class="fas fa-tags"></i> Теги:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for tag in newspaper.tags.all %}
+                                <span class="badge" style="background-color: {{ tag.color }};">
+                                    {{ tag.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </article>
+
+        <!-- Навігація між статтями -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                {% comment %}
+                <!-- Попередня стаття -->
+                {% if previous_newspaper %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-arrow-left"></i> Попередня стаття
+                            </h6>
+                            <a href="{{ previous_newspaper.get_absolute_url }}" class="text-decoration-none">
+                                {{ previous_newspaper.title|truncatechars:50 }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+                {% endcomment %}
+            </div>
+            <div class="col-md-6">
+                {% comment %}
+                <!-- Наступна стаття -->
+                {% if next_newspaper %}
+                    <div class="card">
+                        <div class="card-body text-end">
+                            <h6 class="card-title">
+                                Наступна стаття <i class="fas fa-arrow-right"></i>
+                            </h6>
+                            <a href="{{ next_newspaper.get_absolute_url }}" class="text-decoration-none">
+                                {{ next_newspaper.title|truncatechars:50 }}
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+                {% endcomment %}
+            </div>
+        </div>
+
+        <!-- Кнопка повернення -->
+        <div class="text-center mt-4">
+            <a href="{% url 'news:newspaper-list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Повернутися до списку новин
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .article-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .article-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .badge.fs-6 {
+        font-size: 0.9rem !important;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+
+    .display-6 {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+</style>
+{% endblock %}
