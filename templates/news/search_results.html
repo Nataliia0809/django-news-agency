@@ -1,0 +1,360 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if query %}
+        Пошук: "{{ query }}" - Новинна Агенція
+    {% else %}
+        Пошук новин - Новинна Агенція
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Форма пошуку -->
+    <div class="col-lg-3 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-search"></i> Розширений пошук
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" id="search-form">
+                    <!-- Основний пошук -->
+                    <div class="mb-3">
+                        <label class="form-label">Ключові слова</label>
+                        <div class="position-relative">
+                            {{ form.query }}
+                            <div id="autocomplete-results" class="autocomplete-dropdown"></div>
+                        </div>
+                    </div>
+
+                    <!-- Тема -->
+                    <div class="mb-3">
+                        <label class="form-label">Тема</label>
+                        {{ form.topic }}
+                    </div>
+
+                    <!-- Автор -->
+                    <div class="mb-3">
+                        <label class="form-label">Автор</label>
+                        {{ form.author }}
+                    </div>
+
+                    <!-- Дати -->
+                    <div class="mb-3">
+                        <label class="form-label">Період</label>
+                        <div class="row">
+                            <div class="col-6">
+                                {{ form.date_from }}
+                                <small class="text-muted">Від</small>
+                            </div>
+                            <div class="col-6">
+                                {{ form.date_to }}
+                                <small class="text-muted">До</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Пріоритет -->
+                    <div class="mb-3">
+                        <label class="form-label">Пріоритет</label>
+                        {{ form.priority }}
+                    </div>
+
+                    <!-- Сортування -->
+                    <div class="mb-3">
+                        <label class="form-label">Сортування</label>
+                        {{ form.sort_by }}
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Знайти
+                        </button>
+                        <a href="{% url 'news:search' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-eraser"></i> Очистити
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Результати пошуку -->
+    <div class="col-lg-9">
+        <!-- Статистика пошуку -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>
+                    <i class="fas fa-search"></i>
+                    {% if query %}
+                        Результати пошуку: "{{ query }}"
+                    {% else %}
+                        Всі новини
+                    {% endif %}
+                </h2>
+                <p class="text-muted mb-0">
+                    Знайдено {{ total_results }}
+                    {% if total_results == 1 %}
+                        результат
+                    {% elif total_results < 5 %}
+                        результати
+                    {% else %}
+                        результатів
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Швидке сортування -->
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-sort"></i> Сортування
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=-published_date">Нові спочатку</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=published_date">Старі спочатку</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=-views_count">За популярністю</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=title">За алфавітом</a></li>
+                </ul>
+            </div>
+        </div>
+
+        {% if newspapers %}
+            <!-- Результати -->
+            <div class="row">
+                {% for newspaper in newspapers %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm search-result-card">
+                            {% if newspaper.featured_image %}
+                                <img src="{{ newspaper.featured_image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                    <i class="fas fa-image fa-2x text-muted"></i>
+                                </div>
+                            {% endif %}
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary">{{ newspaper.topic.name }}</span>
+                                    {% if newspaper.priority == 'urgent' %}
+                                        <span class="badge bg-danger">Терміново</span>
+                                    {% elif newspaper.priority == 'high' %}
+                                        <span class="badge bg-warning text-dark">Важливо</span>
+                                    {% endif %}
+                                </div>
+
+                                <h5 class="card-title">
+                                    <a href="{{ newspaper.get_absolute_url }}" class="text-decoration-none">
+                                        {{ newspaper.title|truncatechars:60 }}
+                                    </a>
+                                </h5>
+
+                                <p class="card-text flex-grow-1">
+                                    {{ newspaper.excerpt|default:newspaper.content|truncatewords:15 }}
+                                </p>
+
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i> {{ newspaper.published_date }}
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-eye"></i> {{ newspaper.views_count }}
+                                        </small>
+                                    </div>
+
+                                    {% if newspaper.publishers.all %}
+                                        <small class="text-muted d-block mb-2">
+                                            <i class="fas fa-user-edit"></i> {{ newspaper.publishers_list|truncatechars:30 }}
+                                        </small>
+                                    {% endif %}
+
+                                    <a href="{{ newspaper.get_absolute_url }}" class="btn btn-sm btn-outline-primary w-100">
+                                        Читати далі
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Пагінація -->
+            {% if is_paginated %}
+                <nav aria-label="Навігація по сторінках">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{{ request.GET.urlencode }}&page=1">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.previous_page_number }}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.next_page_number }}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ page_obj.paginator.num_pages }}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <!-- Немає результатів -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-5x text-muted"></i>
+                </div>
+                <h4 class="text-muted">Нічого не знайдено</h4>
+                <p class="text-muted">
+                    {% if query %}
+                        За запитом "{{ query }}" нічого не знайдено.
+                    {% else %}
+                        Спробуйте змінити параметри пошуку.
+                    {% endif %}
+                </p>
+                <div class="mt-4">
+                    <h6>Поради для пошуку:</h6>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-lightbulb"></i> Перевірте правильність написання</li>
+                        <li><i class="fas fa-lightbulb"></i> Спробуйте більш загальні терміни</li>
+                        <li><i class="fas fa-lightbulb"></i> Використайте менше слів</li>
+                        <li><i class="fas fa-lightbulb"></i> Очистіть фільтри</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .search-result-card {
+        transition: transform 0.2s;
+        border: none;
+        border-radius: 10px;
+    }
+
+    .search-result-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 0 0 8px 8px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+
+    .autocomplete-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+
+    .autocomplete-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+</style>
+
+<script>
+// Автокомпліт для пошуку
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="query"]');
+    const autocompleteDiv = document.getElementById('autocomplete-results');
+    let debounceTimer;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
+
+            if (query.length < 2) {
+                autocompleteDiv.style.display = 'none';
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch(`{% url 'news:search-autocomplete' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        autocompleteDiv.innerHTML = '';
+
+                        if (data.suggestions.length > 0) {
+                            data.suggestions.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'autocomplete-item';
+                                div.innerHTML = `
+                                    <i class="fas fa-${item.icon}"></i> ${item.title}
+                                `;
+                                div.addEventListener('click', () => {
+                                    window.location.href = item.url;
+                                });
+                                autocompleteDiv.appendChild(div);
+                            });
+                            autocompleteDiv.style.display = 'block';
+                        } else {
+                            autocompleteDiv.style.display = 'none';
+                        }
+                    });
+            }, 300);
+        });
+
+        // Приховати автокомпліт при кліку поза ним
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !autocompleteDiv.contains(e.target)) {
+                autocompleteDiv.style.display = 'none';
+            }
+        });
+    }
+
+    // Автоматичне підтвердження форми при зміні select'ів
+    const selectElements = document.querySelectorAll('#search-form select');
+    selectElements.forEach(select => {
+        select.addEventListener('change', function() {
+            document.getElementById('search-form').submit();
+        });
+    });
+});
+</script>
+{% endblock %}
