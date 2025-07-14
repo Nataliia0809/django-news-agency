@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}Створити тему - Новинна Агенція{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <!-- Навігація -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:index' %}"><i class="fas fa-home"></i> Головна</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:topic-list' %}">Теми</a>
+                </li>
+                <li class="breadcrumb-item active">Створити тему</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-plus"></i> Створити нову тему
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Назва теми -->
+                    <div class="mb-4">
+                        <label for="{{ form.name.id_for_label }}" class="form-label">
+                            <i class="fas fa-tag"></i> Назва теми *
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.name.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Введіть коротку та зрозумілу назву теми (максимум 100 символів)
+                        </div>
+                    </div>
+
+                    <!-- Загальні помилки форми -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Кнопки -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'news:topic-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Створити тему
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Підказки -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-lightbulb"></i> Поради для створення теми
+                </h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i>
+                        Використовуйте зрозумілі та конкретні назви
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i>
+                        Уникайте надто загальних категорій
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i>
+                        Перевірте, чи не існує вже подібна тема
+                    </li>
+                    <li>
+                        <i class="fas fa-check text-success"></i>
+                        Тема має відображати суть новин, які в неї потраплятимуть
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Існуючі теми -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-list"></i> Існуючі теми
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <!-- Тут можна показати існуючі теми для референсу -->
+                    <span class="badge bg-primary">Політика</span>
+                    <span class="badge bg-info">Спорт</span>
+                    <span class="badge bg-warning text-dark">Технології</span>
+                    <span class="badge bg-success">Економіка</span>
+                    <span class="badge bg-secondary">Культура</span>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                    Переконайтеся, що ваша тема не дублює існуючі
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+    }
+
+    .form-control:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 10px 20px;
+    }
+
+    .badge {
+        font-size: 0.8em;
+        padding: 0.4rem 0.6rem;
+    }
+</style>
+
+<script>
+    // Автоматичне генерування slug'а з назви (для демонстрації)
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameField = document.querySelector('input[name="name"]');
+        if (nameField) {
+            nameField.addEventListener('input', function() {
+                const value = this.value;
+                // Тут можна додати логіку перевірки унікальності назви
+                if (value.length > 50) {
+                    this.style.borderColor = '#ffc107';
+                } else if (value.length > 0) {
+                    this.style.borderColor = '#198754';
+                } else {
+                    this.style.borderColor = '#e9ecef';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

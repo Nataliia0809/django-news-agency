@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "accounts.apps.AccountsConfig",
-    "news",
+    "news.apps.NewsConfig",
     "crispy_forms",
     "crispy_bootstrap5",
     "django_extensions",

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Видалити "{{ newspaper.title }}" - Новинна Агенція{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <!-- Навігація -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:index' %}"><i class="fas fa-home"></i> Головна</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:newspaper-list' %}">Новини</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{{ newspaper.get_absolute_url }}">{{ newspaper.title|truncatechars:30 }}</a>
+                </li>
+                <li class="breadcrumb-item active">Видалити</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-exclamation-triangle"></i> Підтвердження видалення
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Увага!</strong> Ця дія незворотна. Всі дані будуть втрачені назавжди.
+                </div>
+
+                <h5 class="mb-3">Ви впевнені, що хочете видалити цю новину?</h5>
+
+                <!-- Інформація про статтю -->
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ newspaper.title }}</h6>
+                        <div class="row text-sm text-muted">
+                            <div class="col-6">
+                                <p class="mb-1">
+                                    <i class="fas fa-tag"></i> {{ newspaper.topic.name }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar"></i> {{ newspaper.published_date }}
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1">
+                                    <i class="fas fa-eye"></i> {{ newspaper.views_count }} переглядів
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-clock"></i> {{ newspaper.created|date:"d.m.Y" }}
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if newspaper.publishers.all %}
+                            <p class="mb-0 mt-2">
+                                <i class="fas fa-users"></i>
+                                <strong>Автори:</strong> {{ newspaper.publishers_list }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ newspaper.get_absolute_url }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Так, видалити назавжди
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Додаткова інформація -->
+        <div class="card mt-4 border-warning">
+            <div class="card-body">
+                <h6 class="card-title text-warning">
+                    <i class="fas fa-info-circle"></i> Що буде видалено?
+                </h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-1">
+                        <i class="fas fa-check text-danger"></i> Сама стаття та весь її вміст
+                    </li>
+                    <li class="mb-1">
+                        <i class="fas fa-check text-danger"></i> Всі коментарі до статті
+                    </li>
+                    <li class="mb-1">
+                        <i class="fas fa-check text-danger"></i> Рейтинги та оцінки
+                    </li>
+                    <li>
+                        <i class="fas fa-check text-danger"></i> Зображення та файли
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 10px 20px;
+    }
+
+    .text-sm {
+        font-size: 0.9rem;
+    }
+
+    .border-warning {
+        border-color: #ffc107 !important;
+    }
+</style>
+{% endblock %}

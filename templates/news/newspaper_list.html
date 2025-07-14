@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Всі новини - Новинна Агенція{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-newspaper"></i> Всі новини</h1>
+    {% if user.is_authenticated %}
+        <a href="{% url 'news:newspaper-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Додати новину
+        </a>
+    {% endif %}
+</div>
+
+<!-- Фільтр по темах -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="card-title"><i class="fas fa-filter"></i> Фільтрувати за темою</h6>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'news:newspaper-list' %}"
+               class="btn btn-sm {% if not selected_topic %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                Всі теми
+            </a>
+            {% for topic in topics %}
+                <a href="?topic={{ topic.id }}"
+                   class="btn btn-sm {% if selected_topic == topic.id|stringformat:'s' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ topic.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Список новин -->
+{% if newspapers %}
+    <div class="row">
+        {% for newspaper in newspapers %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if newspaper.featured_image %}
+                        <img src="{{ newspaper.featured_image.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ newspaper.topic.name }}</span>
+                            {% if newspaper.priority == 'urgent' %}
+                                <span class="badge bg-danger">Терміново</span>
+                            {% elif newspaper.priority == 'high' %}
+                                <span class="badge bg-warning text-dark">Важливо</span>
+                            {% elif newspaper.priority == 'medium' %}
+                                <span class="badge bg-info">Середньо</span>
+                            {% endif %}
+                        </div>
+
+                        <h5 class="card-title">
+                            <a href="{{ newspaper.get_absolute_url }}" class="text-decoration-none">
+                                {{ newspaper.title|truncatechars:60 }}
+                            </a>
+                        </h5>
+
+                        <p class="card-text flex-grow-1">
+                            {{ newspaper.excerpt|default:newspaper.content|truncatewords:15 }}
+                        </p>
+
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar"></i> {{ newspaper.published_date }}
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-eye"></i> {{ newspaper.views_count }}
+                                </small>
+                            </div>
+
+                            {% if newspaper.publishers.all %}
+                                <small class="text-muted d-block mb-2">
+                                    <i class="fas fa-user-edit"></i> {{ newspaper.publishers_list|truncatechars:30 }}
+                                </small>
+                            {% endif %}
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ newspaper.get_absolute_url }}" class="btn btn-sm btn-outline-primary">
+                                    Читати
+                                </a>
+                                {% if user.is_authenticated and user in newspaper.publishers.all %}
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'news:newspaper-update' newspaper.pk %}" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'news:newspaper-delete' newspaper.pk %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагінація -->
+    {% if is_paginated %}
+        <nav aria-label="Навігація по сторінках">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if selected_topic %}&topic={{ selected_topic }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_topic %}&topic={{ selected_topic }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if selected_topic %}&topic={{ selected_topic }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_topic %}&topic={{ selected_topic }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if selected_topic %}&topic={{ selected_topic }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-newspaper fa-5x text-muted"></i>
+        </div>
+        <h4 class="text-muted">Новин не знайдено</h4>
+        <p class="text-muted">
+            {% if selected_topic %}
+                У цій темі поки що немає новин.
+            {% else %}
+                Поки що новин немає. Станьте першим автором!
+            {% endif %}
+        </p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'news:newspaper-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Додати новину
+            </a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<style>
+    .card {
+        transition: transform 0.2s;
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    .btn-group .btn {
+        border-radius: 0;
+    }
+
+    .btn-group .btn:first-child {
+        border-radius: 0.375rem 0 0 0.375rem;
+    }
+
+    .btn-group .btn:last-child {
+        border-radius: 0 0.375rem 0.375rem 0;
+    }
+</style>
+{% endblock %}

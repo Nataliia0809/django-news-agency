@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Додати новину - Новинна Агенція{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Навігація -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:index' %}"><i class="fas fa-home"></i> Головна</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'news:newspaper-list' %}">Новини</a>
+                </li>
+                <li class="breadcrumb-item active">Додати новину</li>
+            </ol>
+        </nav>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-plus"></i> Додати нову статтю
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Заголовок -->
+                    <div class="mb-4">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="fas fa-heading"></i> Заголовок новини *
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.title.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Введіть привабливий та інформативний заголовок
+                        </div>
+                    </div>
+
+                    <!-- Тема -->
+                    <div class="mb-4">
+                        <label for="{{ form.topic.id_for_label }}" class="form-label">
+                            <i class="fas fa-tags"></i> Тема *
+                        </label>
+                        {{ form.topic }}
+                        {% if form.topic.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.topic.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Оберіть найбільш підходящу тему для вашої новини
+                        </div>
+                    </div>
+
+                    <!-- Дата публікації -->
+                    <div class="mb-4">
+                        <label for="{{ form.published_date.id_for_label }}" class="form-label">
+                            <i class="fas fa-calendar"></i> Дата публікації *
+                        </label>
+                        {{ form.published_date }}
+                        {% if form.published_date.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.published_date.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Вміст -->
+                    <div class="mb-4">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="fas fa-file-text"></i> Вміст новини *
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.content.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Напишіть повний текст вашої новини. Мінімум 100 символів.
+                        </div>
+                    </div>
+
+                    <!-- Співавтори -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-users"></i> Співавтори
+                        </label>
+                        <div class="border rounded p-3 bg-light">
+                            {% for publisher in form.publishers %}
+                                <div class="form-check">
+                                    {{ publisher.tag }}
+                                    <label class="form-check-label" for="{{ publisher.id_for_label }}">
+                                        {{ publisher.choice_label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.publishers.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.publishers.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Оберіть редакторів, які працювали над цією новиною
+                        </div>
+                    </div>
+
+                    <!-- Загальні помилки форми -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Кнопки -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'news:newspaper-list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Опублікувати новину
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Підказки -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="fas fa-lightbulb"></i> Поради для написання хорошої новини
+                </h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i>
+                        Використовуйте ясний та зрозумілий заголовок
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i>
+                        Структуруйте текст за принципом: хто, що, де, коли, чому
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success"></i>
+                        Перевіряйте факти та посилайтеся на надійні джерела
+                    </li>
+                    <li>
+                        <i class="fas fa-check text-success"></i>
+                        Дотримуйтесь нейтрального тону викладення
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .breadcrumb {
+        background: none;
+        padding: 0;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "›";
+        color: #6c757d;
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 10px 20px;
+    }
+</style>
+
+<script>
+    // Автоматичне встановлення сьогоднішньої дати
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateField = document.querySelector('input[type="date"]');
+        if (dateField && !dateField.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateField.value = today;
+        }
+    });
+
+    // Лічильник символів для контенту
+    const contentField = document.querySelector('textarea[name="content"]');
+    if (contentField) {
+        const counterDiv = document.createElement('div');
+        counterDiv.className = 'form-text';
+        counterDiv.id = 'content-counter';
+        contentField.parentNode.appendChild(counterDiv);
+
+        function updateCounter() {
+            const length = contentField.value.length;
+            counterDiv.textContent = `Символів: ${length}`;
+            counterDiv.style.color = length < 100 ? '#dc3545' : '#198754';
+        }
+
+        contentField.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+</script>
+{% endblock %}
