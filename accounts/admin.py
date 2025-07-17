@@ -17,6 +17,8 @@ class RedactorAdmin(UserAdmin):
     search_fields = ("username", "first_name", "last_name", "email")
     readonly_fields = ("created",)
     filter_horizontal = ("groups", "user_permissions")
+
+    # для редагування існуючих користувачів
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (
@@ -49,6 +51,33 @@ class RedactorAdmin(UserAdmin):
         ),
         ("Important dates", {"fields": ("last_login", "date_joined", "created")}),
     )
+
+    # поля для створення нових користувачів
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "password1", "password2"),
+            },
+        ),
+        (
+            "Personal info",
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "years_of_experience",
+                    "bio",
+                    "phone",
+                )
+            },
+        ),
+        ("Department", {"fields": ("department",)}),
+        ("Permissions", {"fields": ("is_active_redactor", "is_active", "is_staff")}),
+    )
+
     ordering = ("username",)
 
 
