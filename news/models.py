@@ -25,7 +25,15 @@ class Topic(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+
+            while Topic.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -191,10 +199,6 @@ class NewspaperRating(models.Model):  # 🔻Рейтинг новин
 
     def __str__(self):
         return f"{self.user.username} rated {self.newspaper.title}: {self.rating}/5"
-
-
-from django.db import models
-from django.conf import settings
 
 
 class Department(models.Model):

@@ -16,6 +16,8 @@ from accounts.models import Redactor
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from .forms import SearchForm
+from django.urls import reverse
+from django.http import JsonResponse
 
 
 # Головна сторінка🔻
@@ -111,15 +113,11 @@ class TopicCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        # Зберігаємо об’єкт і рендеримо шаблон із ним
-        return render(
-            self.request, self.template_name, {"form": form, "topic": self.object}
-        )
+        messages.success(self.request, f'Тема "{self.object.name}" успішно створена!')
+        return response  # Повертаємо response
 
     def get_success_url(self):
-        return reverse_lazy(
-            "news:topic-list"
-        )  # або інший маршрут, наприклад, деталі теми
+        return reverse_lazy('news:topic-detail', kwargs={'pk': self.object.pk})
 
 
 # Редактори🔻
@@ -208,9 +206,6 @@ def search_view(request):
 
 
 # AJAX (підказки, коли юзер вводить текст)
-from django.http import JsonResponse
-
-
 def search_autocomplete(request):
     query = request.GET.get("q", "")
     if len(query) < 2:
