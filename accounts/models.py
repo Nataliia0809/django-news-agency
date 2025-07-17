@@ -5,8 +5,7 @@ from django.conf import settings
 
 class Redactor(AbstractUser):
     years_of_experience = models.PositiveIntegerField(
-        default=0,
-        help_text="Years of experience in journalism"
+        default=0, help_text="Years of experience in journalism"
     )
     bio = models.TextField(max_length=500, blank=True)
     avatar = models.ImageField(upload_to="avatars/%Y/%m/%d", blank=True)
