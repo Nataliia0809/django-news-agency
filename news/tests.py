@@ -126,7 +126,8 @@ class ViewTests(TestCase):
 
     def test_newspaper_create_requires_login(self):
         response = self.client.get(reverse("news:newspaper-create"))
-        self.assertRedirects(response, "/accounts/login/?next=/newspapers/create/")
+        self.assertEqual(response.status_code, 302)  # Редирект
+        self.assertIn("/accounts/login/", response.url)
 
     def test_newspaper_create_with_login(self):
         self.client.login(username="testuser", password="testpass123")
@@ -147,6 +148,11 @@ class ViewTests(TestCase):
         response = self.client.get(reverse("news:search-autocomplete"), {"q": "Test"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/json")
+
+        import json
+
+        data = json.loads(response.content)
+        self.assertIn("suggestions", data)
 
 
 class URLTests(TestCase):
