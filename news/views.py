@@ -18,7 +18,7 @@ from django.core.paginator import Paginator
 from .forms import SearchForm
 
 
-# гол сторінка🔻
+# Головна сторінка🔻
 def index(request):
     newspapers = Newspaper.objects.all()[:5]
     context = {
@@ -27,11 +27,10 @@ def index(request):
         "total_topics": Topic.objects.count(),
         "total_redactors": Redactor.objects.count(),
     }
-
     return render(request, "news/index.html", context)
 
 
-# газета🔻
+# Газета🔻
 class NewspaperListView(ListView):
     model = Newspaper
     template_name = "news/newspaper_list.html"
@@ -47,9 +46,9 @@ class NewspaperListView(ListView):
             queryset = queryset.filter(topic__id=topic_id)
         return queryset
 
-    def context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context[topics] = Topic.objects.all()
+        context['topics'] = Topic.objects.all()
         context["selected_topic"] = self.request.GET.get("topic")
         return context
 
@@ -63,6 +62,17 @@ class NewspaperCreateView(LoginRequiredMixin, CreateView):
     model = Newspaper
     form_class = NewspaperForm
     template_name = "news/newspaper_create.html"
+
+    def form_valid(self, form):
+        newspaper = form.save(commit=False)
+        newspaper.save()
+        publishers = form.cleaned_data.get('publishers')
+        if publishers:
+            newspaper.publishers.set(publishers)
+        else:
+            newspaper.publishers.add(self.request.user)
+
+        return super().form_valid(form)
 
 
 class NewspaperUpdateView(LoginRequiredMixin, UpdateView):
@@ -87,9 +97,10 @@ class TopicDetailView(DetailView):
     model = Topic
     template_name = "news/topic_detail.html"
 
-    def context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["newspapers"] = self.object.newspaper.all
+        # context["newspapers"] = self.object.newspaper_set.all()
+        context["newspapers"] = self.object.newspapers.all()
         return context
 
 
@@ -98,8 +109,16 @@ class TopicCreateView(LoginRequiredMixin, CreateView):
     form_class = TopicForm
     template_name = "news/topic_create.html"
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # Зберігаємо об’єкт і рендеримо шаблон із ним
+        return render(self.request, self.template_name, {'form': form, 'topic': self.object})
 
-# редактори🔻
+    def get_success_url(self):
+        return reverse_lazy('news:topic-list')  # або інший маршрут, наприклад, деталі теми
+
+
+# Редактори🔻
 class RedactorListView(ListView):
     model = Redactor
     template_name = "news/redactor_list.html"
@@ -119,14 +138,13 @@ class RedactorDetailView(DetailView):
     context_object_name = "redactor"
 
 
-# 🔻пошук
+# Пошук🔻
 def search_view(request):
     form = SearchForm(request.GET or None)
     newspapers = Newspaper.objects.filter(is_published=True)
     query = None
 
     if form.is_valid():
-        # текстовий пошук
         query = form.cleaned_data.get("query")
         if query:
             newspapers = newspapers.filter(
@@ -139,41 +157,34 @@ def search_view(request):
                 | Q(publishers__username__icontains=query)
             ).distinct()
 
-        # фільтр за темою
         topic = form.cleaned_data.get("topic")
         if topic:
             newspapers = newspapers.filter(topic=topic)
 
-        # за автором
         author = form.cleaned_data.get("author")
         if author:
             newspapers = newspapers.filter(publishers=author)
 
-        # по даті від
         date_from = form.cleaned_data.get("date_from")
         if date_from:
             newspapers = newspapers.filter(published_date__gte=date_from)
 
-        # по даті до
         date_to = form.cleaned_data.get("date_to")
         if date_to:
             newspapers = newspapers.filter(published_date__lte=date_to)
 
-        # по пріоритету
         priority = form.cleaned_data.get("priority")
         if priority:
             newspapers = newspapers.filter(priority=priority)
 
-        # сортування
         sort_by = form.cleaned_data.get("sort_by")
         if sort_by:
             newspapers = newspapers.order_by(sort_by)
-        elif query:  # якщо є пошуковий запит, сортую відповідно до нього
+        elif query:
             newspapers = newspapers.order_by("-published_date")
         else:
             newspapers = newspapers.order_by("-published_date")
 
-    # Пагінація
     paginator = Paginator(
         newspapers.select_related("topic").prefetch_related("publishers"), 12
     )
@@ -201,13 +212,8 @@ def search_autocomplete(request):
     if len(query) < 2:
         return JsonResponse({"suggestions": []})
 
-    # по заголовках
     newspapers = Newspaper.objects.filter(title__icontains=query, is_published=True)[:5]
-
-    # по темах
     topics = Topic.objects.filter(name__icontains=query, is_active=True)[:3]
-
-    # по авторах
     authors = Redactor.objects.filter(
         Q(first_name__icontains=query)
         | Q(last_name__icontains=query)
@@ -217,7 +223,6 @@ def search_autocomplete(request):
 
     suggestions = []
 
-    # додаємо новини
     for newspaper in newspapers:
         suggestions.append(
             {
@@ -228,7 +233,6 @@ def search_autocomplete(request):
             }
         )
 
-    # додаємо теми
     for topic in topics:
         suggestions.append(
             {
@@ -239,7 +243,6 @@ def search_autocomplete(request):
             }
         )
 
-    # додаю авторів
     for author in authors:
         suggestions.append(
             {

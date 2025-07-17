@@ -29,7 +29,7 @@ class Topic(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("news:topic-detail", kwargs={"slug": self.slug})
+        return reverse("news:topic-detail", kwargs={"pk": self.pk})
 
     @property
     def active_newspapers_count(self):
@@ -81,7 +81,7 @@ class Newspaper(models.Model):
         ]
 
     def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(args, kwargs)
+        super().__init__(*args, **kwargs)
         self.full_name = None
 
     def __str__(self):
@@ -89,7 +89,16 @@ class Newspaper(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+
+            while Newspaper.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
+
         if not self.excerpt:
             self.excerpt = (
                 self.content[:297] + "..." if len(self.content) > 300 else self.content
@@ -97,7 +106,7 @@ class Newspaper(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("news:newspaper-detail", kwargs={"slug": self.slug})
+        return reverse("news:newspaper-detail", kwargs={"pk": self.pk})
 
     def increment_views(self):
         self.views_count += 1
@@ -124,8 +133,6 @@ class Newspaper(models.Model):
 
 
 # Дод моделі для ширшого функціоналу 🔻
-
-
 class Tag(models.Model):  # 🔻Теги для кращого розділення на категорії
     name = models.CharField(max_length=50, unique=True, db_index=True)
     slug = models.SlugField(max_length=50, unique=True)

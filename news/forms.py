@@ -32,6 +32,8 @@ class NewspaperForm(forms.ModelForm):
         self.fields["publishers"].queryset = self.fields["publishers"].queryset.all()
         self.fields["publishers"].widget.attrs.update({"class": "form-check-input"})
 
+        self.fields["topic"].empty_label = "Оберіть тему"
+
 
 class TopicForm(forms.ModelForm):
     class Meta:
