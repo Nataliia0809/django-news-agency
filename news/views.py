@@ -48,7 +48,7 @@ class NewspaperListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['topics'] = Topic.objects.all()
+        context["topics"] = Topic.objects.all()
         context["selected_topic"] = self.request.GET.get("topic")
         return context
 
@@ -66,7 +66,7 @@ class NewspaperCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         newspaper = form.save(commit=False)
         newspaper.save()
-        publishers = form.cleaned_data.get('publishers')
+        publishers = form.cleaned_data.get("publishers")
         if publishers:
             newspaper.publishers.set(publishers)
         else:
@@ -112,10 +112,14 @@ class TopicCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         response = super().form_valid(form)
         # Зберігаємо об’єкт і рендеримо шаблон із ним
-        return render(self.request, self.template_name, {'form': form, 'topic': self.object})
+        return render(
+            self.request, self.template_name, {"form": form, "topic": self.object}
+        )
 
     def get_success_url(self):
-        return reverse_lazy('news:topic-list')  # або інший маршрут, наприклад, деталі теми
+        return reverse_lazy(
+            "news:topic-list"
+        )  # або інший маршрут, наприклад, деталі теми
 
 
 # Редактори🔻
