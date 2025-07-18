@@ -117,7 +117,7 @@ class TopicCreateView(LoginRequiredMixin, CreateView):
         return response  # Повертаємо response
 
     def get_success_url(self):
-        return reverse_lazy('news:topic-detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy("news:topic-detail", kwargs={"pk": self.object.pk})
 
 
 # redactors🔻

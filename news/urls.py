@@ -5,10 +5,8 @@ from . import views
 app_name = "news"
 
 urlpatterns = [
-
     # home page🔻
     path("", views.index, name="index"),
-
     # newspapers🔻
     path("newspapers/", views.NewspaperListView.as_view(), name="newspaper-list"),
     path(
@@ -31,12 +29,10 @@ urlpatterns = [
         views.NewspaperDeleteView.as_view(),
         name="newspaper-delete",
     ),
-
     # topics🔻
     path("topics/", views.TopicListView.as_view(), name="topic-list"),
     path("topics/<int:pk>/", views.TopicDetailView.as_view(), name="topic-detail"),
     path("topics/create/", views.TopicCreateView.as_view(), name="topic-create"),
-
     # redactors🔻
     path("redactors/", views.RedactorListView.as_view(), name="redactor-list"),
     path(
