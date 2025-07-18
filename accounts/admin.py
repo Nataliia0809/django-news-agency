@@ -18,7 +18,7 @@ class RedactorAdmin(UserAdmin):
     readonly_fields = ("created",)
     filter_horizontal = ("groups", "user_permissions")
 
-    # для редагування існуючих користувачів
+    # for edit existing users
     fieldsets = (
         (None, {"fields": ("username", "password")}),
         (
@@ -52,7 +52,7 @@ class RedactorAdmin(UserAdmin):
         ("Important dates", {"fields": ("last_login", "date_joined", "created")}),
     )
 
-    # поля для створення нових користувачів
+    # fields for new user creating
     add_fieldsets = (
         (
             None,
@@ -79,6 +79,3 @@ class RedactorAdmin(UserAdmin):
     )
 
     ordering = ("username",)
-
-
-# створити views та urls; розібратися з crud операціями і автентифікацією користувачів (6, 7, 8 пункти)

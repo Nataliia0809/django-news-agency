@@ -8,21 +8,21 @@
 
 My first Django portfolio project - a news management website where users can create, read, update and delete news articles.
 
-## 🚀 What This Project Does
+## 🚀 What this project does:
 
 This is a news website where:
 - **Visitors** can read news articles, search, and browse by topics
 - **Registered users** can create their own news articles and comment
 - **Admins** can manage all content through Django admin panel
 
-## 🛠️ Technologies I Used
+## 🛠️ Technologies I used:
 
 - **Django 5.2.4** - Python web framework
 - **Bootstrap 5** - For responsive design
 - **SQLite** - Database
 - **HTML/CSS/JavaScript** - Frontend
 
-## 📋 How to Run This Project
+## 📋 How to run this project
 
 ### 1. Download the project:
 ```bash
@@ -63,13 +63,13 @@ python manage.py runserver
 
 ## ✨ Features I built:
 
-### 📰 News Management
+### 📰 News management
 - Create, edit, and delete news articles
 - Add images to articles
 - Organize articles by topics
 - Set article priority levels
 
-### 👤 User System
+### 👤 User system
 - User registration and login
 - Custom user profiles with experience tracking
 - User can write articles and comments
@@ -91,7 +91,7 @@ I wrote 21 tests to make sure everything works correctly:
 python manage.py test news
 ```
 
-## 📊 Database Structure
+## 📊 Database structure
 
 The project uses these main models:
 - **Redactor** - Users who can write articles
@@ -100,7 +100,7 @@ The project uses these main models:
 - **Tag** - Labels for articles
 - **Comment** - User comments on articles
 
-## 🎯 What I Learned
+## 🎯 What I learned
 
 Building this project taught me:
 - Django framework basics (models, views, templates)
@@ -110,7 +110,7 @@ Building this project taught me:
 - Writing tests for web applications
 - Git workflow and project documentation
 
-## 🚀 Future Improvements
+## 🚀 Future improvements
 
 Things I want to add later:
 - Email notifications for new articles
@@ -126,7 +126,7 @@ This is my first Django project created as part of my web development learning j
 - GitHub: [@Nataliia0809](https://github.com/Nataliia0809)
 - Email: nperepeliak7@gmail.com
 
-## 📝 Project Status
+## 📝 Project status
 
 ✅ **Completed Features:**
 - Basic CRUD operations

@@ -140,8 +140,8 @@ class Newspaper(models.Model):
         return self.comments.filter(is_approved=True).count()
 
 
-# Дод моделі для ширшого функціоналу 🔻
-class Tag(models.Model):  # 🔻Теги для кращого розділення на категорії
+# models for more functionality🔻
+class Tag(models.Model):  # 🔻tags for better categoriz.
     name = models.CharField(max_length=50, unique=True, db_index=True)
     slug = models.SlugField(max_length=50, unique=True)
     color = models.CharField(
@@ -161,7 +161,7 @@ class Tag(models.Model):  # 🔻Теги для кращого розділен�
         super().save(*args, **kwargs)
 
 
-class Comment(models.Model):  # Коментарі до новин 🔻
+class Comment(models.Model):  # news comments 🔻
     newspaper = models.ForeignKey(
         Newspaper, on_delete=models.CASCADE, related_name="comments"
     )
@@ -178,7 +178,7 @@ class Comment(models.Model):  # Коментарі до новин 🔻
         return f"Comment by {self.author.username} on {self.newspaper.title}"
 
 
-class NewspaperRating(models.Model):  # 🔻Рейтинг новин
+class NewspaperRating(models.Model):  # 🔻news rating
     RATING_CHOICES = [
         (1, "Poor"),
         (2, "Fair"),

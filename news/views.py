@@ -20,7 +20,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 
 
-# Головна сторінка🔻
+# Home page🔻
 def index(request):
     newspapers = Newspaper.objects.all()[:5]
     context = {
@@ -32,7 +32,7 @@ def index(request):
     return render(request, "news/index.html", context)
 
 
-# Газета🔻
+# newspaper🔻
 class NewspaperListView(ListView):
     model = Newspaper
     template_name = "news/newspaper_list.html"
@@ -89,7 +89,7 @@ class NewspaperDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("news:newspaper-list")
 
 
-# Теми🔻
+# topics🔻
 class TopicListView(ListView):
     model = Topic
     template_name = "news/topic_list.html"
@@ -120,7 +120,7 @@ class TopicCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy('news:topic-detail', kwargs={'pk': self.object.pk})
 
 
-# Редактори🔻
+# redactors🔻
 class RedactorListView(ListView):
     model = Redactor
     template_name = "news/redactor_list.html"
@@ -140,7 +140,7 @@ class RedactorDetailView(DetailView):
     context_object_name = "redactor"
 
 
-# Пошук🔻
+# search🔻
 def search_view(request):
     form = SearchForm(request.GET or None)
     newspapers = Newspaper.objects.filter(is_published=True)
@@ -205,7 +205,7 @@ def search_view(request):
     return render(request, "news/search_results.html", context)
 
 
-# AJAX (підказки, коли юзер вводить текст)
+# AJAX (prompts when user enters text)🔻
 def search_autocomplete(request):
     query = request.GET.get("q", "")
     if len(query) < 2:

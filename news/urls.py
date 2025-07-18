@@ -5,9 +5,11 @@ from . import views
 app_name = "news"
 
 urlpatterns = [
-    # дом стор.
+
+    # home page🔻
     path("", views.index, name="index"),
-    # газети
+
+    # newspapers🔻
     path("newspapers/", views.NewspaperListView.as_view(), name="newspaper-list"),
     path(
         "newspapers/<int:pk>/",
@@ -29,18 +31,20 @@ urlpatterns = [
         views.NewspaperDeleteView.as_view(),
         name="newspaper-delete",
     ),
-    # теми
+
+    # topics🔻
     path("topics/", views.TopicListView.as_view(), name="topic-list"),
     path("topics/<int:pk>/", views.TopicDetailView.as_view(), name="topic-detail"),
     path("topics/create/", views.TopicCreateView.as_view(), name="topic-create"),
-    # редактори
+
+    # redactors🔻
     path("redactors/", views.RedactorListView.as_view(), name="redactor-list"),
     path(
         "redactors/<int:pk>/",
         views.RedactorDetailView.as_view(),
         name="redactor-detail",
     ),
-    # пошук
+    # search🔻
     path("search/", views.search_view, name="search"),
     path("search/autocomplete/", views.search_autocomplete, name="search-autocomplete"),
 ]
