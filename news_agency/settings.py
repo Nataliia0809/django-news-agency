@@ -1,6 +1,9 @@
-from pathlib import Path
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
+# for .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,7 +17,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "your-default-key-for-development")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+
+DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"
 
 ALLOWED_HOSTS = []
 
@@ -28,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "debug_toolbar",
     "accounts.apps.AccountsConfig",
     "news.apps.NewsConfig",
     "crispy_forms",
@@ -36,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -130,3 +137,11 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # for media files!!!!🔻
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Django Debug Toolbar(for development only)
+if DEBUG:
+    if DEBUG:
+        INTERNAL_IPS = [
+            '127.0.0.1',
+            'localhost',
+        ]
