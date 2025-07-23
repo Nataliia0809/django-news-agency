@@ -1,4 +1,3 @@
-# написати news/urls і для accounts views і urls
 from django.urls import path
 from . import views
 
