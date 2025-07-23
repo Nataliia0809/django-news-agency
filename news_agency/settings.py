@@ -18,9 +18,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "your-default-key-for-development")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-
-DEBUG = os.environ.get("DEBUG", "False").lower() == "True"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
@@ -79,22 +77,19 @@ WSGI_APPLICATION = "news_agency.wsgi.application"
 
 if os.environ.get("DATABASE_URL"):
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+        'default': dj_database_url.parse(
+            os.environ.get("DATABASE_URL"),
+            conn_max_age=600
+        )
     }
 else:
+    # Fallback to SQLite for local development
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 
 # Password validation
@@ -131,8 +126,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
-STATIC_ROOT ="staticfiles/"
+STATIC_URL = "/static/"
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# Production WhiteNoise
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Media files
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -147,20 +154,16 @@ LOGOUT_REDIRECT_URL = "/"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-# for media files!!!!🔻
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-# production WhiteNoise
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
-# Django Debug Toolbar(for development only)
+# Django Debug Toolbar (for development only)
 if DEBUG:
-    if DEBUG:
-        INTERNAL_IPS = [
-            '127.0.0.1',
-            'localhost',
-        ]
+    INTERNAL_IPS = [
+        '127.0.0.1',
+        'localhost',
+    ]
+
+# Security settings for production
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
