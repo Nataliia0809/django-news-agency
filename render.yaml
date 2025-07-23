@@ -7,7 +7,7 @@ services:
     startCommand: 'python -m gunicorn news_agency.asgi:application -k uvicorn.workers.UvicornWorker'
     envVars:
       - key: DATABASE_URL
-        value: psql 'postgresql://neondb_owner:npg_u2dz6eojxWgf@ep-plain-shadow-a2s9tf98-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+        value: postgresql://neondb_owner:npg_u2dz6eojxWgf@ep-plain-shadow-a2s9tf98-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
