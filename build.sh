@@ -1,18 +1,40 @@
 #!/usr/bin/env bash
 set -o errexit
 
+echo "🔧 Installing dependencies..."
 pip install -r requirements.txt
+
+echo "📁 Collecting static files..."
 python manage.py collectstatic --no-input
+
+echo "📊 Running migrations..."
 python manage.py migrate
 
-# load local files
-if [ -f "initial_data.json" ]; then
-    echo "Loading initial data..."
-    python manage.py loaddata initial_data.json || echo "Failed to load initial data, continuing..."
+echo "🗑️ Clearing existing data to avoid conflicts..."
+python manage.py flush --noinput || echo "Flush failed or not needed, continuing..."
+
+echo "📥 Loading initial data from fixtures..."
+if python manage.py loaddata news_agency.initial_data --verbosity=2; then
+    echo "✅ Initial data loaded successfully!"
 else
-    echo "initial_data.json not found, skipping data loading"
+    echo "❌ Failed to load initial data, but continuing with deployment..."
 fi
 
-# create superuser
-echo "Creating superuser..."
-echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin123') if not User.objects.filter(username='admin').exists() else print('Superuser already exists')" | python manage.py shell
+echo "👤 Ensuring superuser exists..."
+python manage.py shell << 'PYTHON_EOF'
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+# Check if any superuser exists from fixtures
+if User.objects.filter(is_superuser=True).exists():
+    print("✅ Superuser(s) already exist from fixtures")
+else:
+    # Create backup superuser only if none exist
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        print("✅ Backup superuser 'admin' created")
+    else:
+        print("✅ Admin user already exists")
+PYTHON_EOF
+
+echo "🎉 Build completed successfully!"
