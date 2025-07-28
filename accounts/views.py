@@ -13,6 +13,6 @@ def signup(request):
             user = form.save()
             login(request, user)
             return redirect("news:index")
-        else:
-            form = RedactorCreationForm()
-        return render(request, "registration/signup.html", {"form": form})
+    else:
+        form = RedactorCreationForm()
+    return render(request, "registration/signup.html", {"form": form})
