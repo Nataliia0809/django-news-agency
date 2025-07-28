@@ -10,12 +10,8 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    # Django Debug Toolbar
     import debug_toolbar
-
     urlpatterns = [
         path("__debug__/", include(debug_toolbar.urls)),
     ] + urlpatterns
-
-# Media files
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -152,6 +152,9 @@ STATICFILES_DIRS = [
 # production WhiteNoise
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+
 # Django Debug Toolbar(for development only)
 if DEBUG:
     INTERNAL_IPS = [
@@ -160,8 +163,15 @@ if DEBUG:
     ]
 
 # Media files (uploads)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+if DEBUG:
+    # Development settings
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    # Production settings for Render
+    MEDIA_URL = "/static/media/"
+    MEDIA_ROOT = BASE_DIR / "staticfiles" / "media"
+    WHITENOISE_STATIC_PREFIX = "/static/"
 
 # For production - ensure media directory exists
 if not DEBUG:
