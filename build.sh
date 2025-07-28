@@ -14,7 +14,7 @@ echo "🗑️ Clearing existing data to avoid conflicts..."
 python manage.py flush --noinput || echo "Flush failed or not needed, continuing..."
 
 echo "📥 Loading initial data from fixtures..."
-if python manage.py loaddata news_agency.initial_data --verbosity=2; then
+if python manage.py loaddata news_agency/fixtures/initial_data.json --verbosity=2; then
     echo "✅ Initial data loaded successfully!"
 else
     echo "❌ Failed to load initial data, but continuing with deployment..."
