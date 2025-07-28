@@ -22,9 +22,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "your-default-key-for-development")
 
 DEBUG = os.environ.get("DEBUG", "False").lower() == "True"
 ALLOWED_HOSTS = [
-    'news-agency-7b6n.onrender.com',
-    '127.0.0.1',
-    'localhost',
+    "news-agency-7b6n.onrender.com",
+    "127.0.0.1",
+    "localhost",
 ]
 
 # Application definition
@@ -83,9 +83,8 @@ WSGI_APPLICATION = "news_agency.wsgi.application"
 
 if os.environ.get("DATABASE_URL"):
     DATABASES = {
-        'default': dj_database_url.parse(
-            os.environ.get("DATABASE_URL"),
-            conn_max_age=600
+        "default": dj_database_url.parse(
+            os.environ.get("DATABASE_URL"), conn_max_age=600
         )
     }
 else:
@@ -128,13 +127,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = "static/"
-STATIC_ROOT ="staticfiles/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -148,6 +140,8 @@ LOGOUT_REDIRECT_URL = "/"
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
 # for media files!!!!🔻
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -160,8 +154,15 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Django Debug Toolbar(for development only)
 if DEBUG:
-    if DEBUG:
-        INTERNAL_IPS = [
-            '127.0.0.1',
-            'localhost',
-        ]
+    INTERNAL_IPS = [
+        "127.0.0.1",
+        "localhost",
+    ]
+
+# Media files (uploads)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# For production - ensure media directory exists
+if not DEBUG:
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
