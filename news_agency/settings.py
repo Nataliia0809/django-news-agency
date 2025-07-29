@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+import shutil
 
 # for .env file
 load_dotenv()
@@ -176,3 +177,40 @@ else:
 # For production - ensure media directory exists
 if not DEBUG:
     os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+if not DEBUG:
+    try:
+        media_source = BASE_DIR / "media"
+        media_dest = BASE_DIR / "staticfiles" / "media"
+
+        print(f"🔍 Checking media source: {media_source}")
+        print(f"🔍 Media source exists: {media_source.exists()}")
+
+        if media_source.exists():
+            # Список файлів у source
+            source_files = list(media_source.rglob("*"))
+            print(f"📁 Found {len(source_files)} items in media source")
+
+            # Створити destination директорію
+            media_dest.mkdir(parents=True, exist_ok=True)
+
+            # Видалити існуючі файли якщо є
+            if media_dest.exists() and any(media_dest.iterdir()):
+                shutil.rmtree(media_dest)
+                media_dest.mkdir(parents=True, exist_ok=True)
+
+            # Копіювати файли
+            shutil.copytree(media_source, media_dest, dirs_exist_ok=True)
+
+            # Перевірити результат
+            copied_files = list(media_dest.rglob("*"))
+            print(f"✅ Successfully copied {len(copied_files)} items to {media_dest}")
+
+        else:
+            print(f"❌ Media source directory does not exist: {media_source}")
+
+    except Exception as e:
+        print(f"❌ Error copying media files: {e}")
+        import traceback
+
+        traceback.print_exc()
