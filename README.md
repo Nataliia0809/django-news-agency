@@ -8,6 +8,11 @@
 
 My first Django portfolio project - a news management website where users can create, read, update and delete news articles.
 
+## 🌐 Live Demo
+
+Переглянути проєкт: https://news-agency-7b6n.onrender.com
+
+
 ## 🚀 What this project does:
 
 This is a news website where:
@@ -20,6 +25,8 @@ This is a news website where:
 - **Django 5.2.4** - Python web framework
 - **Bootstrap 5** - For responsive design
 - **SQLite** - Database
+- **WhiteNoise** - Static files serving
+- **Render** - Cloud deployment platform
 - **HTML/CSS/JavaScript** - Frontend
 
 ## 📋 How to run this project
@@ -133,9 +140,11 @@ This is my first Django project created as part of my web development learning j
 - User authentication
 - Search functionality
 - Responsive design
+- Production deployment
 - Test coverage
 
-This project demonstrates my understanding of Django fundamentals and full-stack web development concepts.
+This project demonstrates my understanding of Django fundamentals and full-stack web development concepts and deployment
+to production.
 
 ---
 
